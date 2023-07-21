@@ -1,0 +1,12 @@
+{
+    "name": "fawno/face-relations",
+    "description": "api Face Relations",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Fawno\\FaceRelations\\": "src/"
+        }
+    },
+    "require": {}
+}

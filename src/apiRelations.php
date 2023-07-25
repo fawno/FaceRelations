@@ -106,9 +106,12 @@
 			$url = self::ENDPOINT . '?' . http_build_query($data);
 
 			do {
-				$response = @file_get_contents($url);
+				sleep(1);
 
+				error_clear_last();
+				$response = @file_get_contents($url);
 				$error = error_get_last();
+				error_clear_last();
 
 				if ($error) {
 					throw new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
@@ -121,7 +124,7 @@
 
 			$items = @json_decode($response, true);
 
-			if (is_array($items) and isset($items['items'])) {
+			if (is_array($items) and !empty($items['items'])) {
 				return $items;
 			}
 

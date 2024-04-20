@@ -27,30 +27,31 @@
 			$nif = end($parts);
 
 			if (preg_match('~(^[XYZ\d]\d{7})([TRWAGMYFPDXBNJZSQVHLCKE]$)~', $nif, $parts)) {
+				[, $digits, $char] = $parts;
+
 				$control = 'TRWAGMYFPDXBNJZSQVHLCKE';
 				$nie = ['X', 'Y', 'Z'];
-				$parts[1] = str_replace(array_values($nie), array_keys($nie), $parts[1]);
-				$cheksum = substr($control, $parts[1] % 23, 1);
-				return ($parts[2] == $cheksum);
+
+				$digits = (int) str_replace($nie, array_keys($nie), $digits);
+
+				$cheksum = substr($control, $digits % 23, 1);
+
+				return ($char === $cheksum);
 			}
 
-			if (preg_match('~(^[ABCDEFGHIJKLMUV])(\d{7})(\d$)~', $nif, $parts)) {
+			if (preg_match('~^[ABCDEFGHJKLMNPQRSUVW](\d{7})([JABCDEFGHI\d]$)~', $nif, $parts)) {
+				[, $digits, $char] = $parts;
+
 				$checksum = 0;
-				foreach (str_split($parts[2]) as $pos => $val) {
-					$checksum += array_sum(str_split((string) ($val * (2 - ($pos % 2)))));
+				foreach (str_split($digits) as $pos => $val) {
+					$checksum += array_sum(str_split((string) ((int) $val * (2 - ($pos % 2)))));
 				}
-				$checksum = ((10 - ($checksum % 10)) % 10);
-				return ($parts[3] == $checksum);
-			}
 
-			if (preg_match('~(^[KLMNPQRSW])(\d{7})([JABCDEFGHI]$)~', $nif, $parts)) {
 				$control = 'JABCDEFGHI';
-				$checksum = 0;
-				foreach (str_split($parts[2]) as $pos => $val) {
-					$checksum += array_sum(str_split((string) ($val * (2 - ($pos % 2)))));
-				}
-				$checksum = substr($control, ((10 - ($checksum % 10)) % 10), 1);
-				return ($parts[3] == $checksum);
+				$checksum1 = (string) ((10 - ($checksum % 10)) % 10);
+				$checksum2 = substr($control, (int) $checksum1, 1);
+
+				return ($char === $checksum1 || $char === $checksum2);
 			}
 
 			return false;

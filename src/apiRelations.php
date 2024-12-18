@@ -109,13 +109,15 @@
 			do {
 				sleep(1);
 
-				error_clear_last();
-				$response = @file_get_contents($url);
-				$error = error_get_last();
-				error_clear_last();
+				$curl = curl_init();
+				curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0');
+				curl_setopt($curl, CURLOPT_URL, $url);
+				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+				$response = curl_exec($curl);
+				$curl_info = curl_getinfo($curl);
 
-				if ($error) {
-					throw new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
+				if (200 !== ($curl_info['http_code'] ?? null)) {
+					throw new ErrorException(sprintf("Error get url: %s\nHTTP Code: %s", $url, ($curl_info['http_code'] ?? '')));
 				}
 
 				if (!$response) {
